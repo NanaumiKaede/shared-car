@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sharedcar.dao.UserDao">
+    <select id="findUserByParam" resultType="com.sharedcar.pojo.User">
+        select id,name,sex,age,phone,id_card,driver_id,user_condition from user
+        <where>
+            <if test="name!=null and name!=''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="beginAge!=null and endAge!=null and beginAge &lt;= endAge">
+                and age between #{beginAge} and #{endAge}
+            </if>
+            <if test="beginAge!=null and endAge==null">
+                and age >= #{beginAge}
+            </if>
+            <if test="phone!=null and phone!=''">
+                and phone = #{phone}
+            </if>
+            <if test="idCard!=null and idCard!=''">
+                and id_card = #{idCard}
+            </if>
+            <if test="driverId!=null and driverId!=''">
+                and driver_id = #{driverId}
+            </if>
+        </where>
+    </select>
+</mapper>

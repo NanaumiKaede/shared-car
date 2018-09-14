@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sharedcar.dao.BusinessDao">
+    <select id="findByParam" resultMap="business_result">
+        select t1.id,t1.type,t1.work_time,t1.car_img,t1.mile,t1.energy_cost,t1.response,
+        t2.id user_id,t2.name uname,
+        t3.id car_id,t3.car_number cnumber,t3.car_condition ccondition,t3.remain_energy renergy,
+        t4.id address_id,t4.address_name aname
+        from business t1, user t2, car t3, address t4
+        <where>
+            t1.user_id = t2.id and t1.car_id = t3.id and t1.address_id = t4.id
+            <if test="id!=null">
+                and t1.id = #{id}
+            </if>
+            <if test="user!=null">
+                and t2.id = #{user.id}
+            </if>
+            <if test="car!=null">
+                and t3.id = #{car.id}
+            </if>
+            <if test="type!=null and type!=''">
+                and t1.type =#{type}
+            </if>
+            <if test="beginTime!=null and endTime!=null and beginTime &lt;= endTime">
+                and t1.work_time between #{beginTime} and #{endTime}
+            </if>
+            <if test="beginTime!=null and endTime==null">
+                and t1.work_time > #{beginTime}
+            </if>
+            <if test="carCondition!=null and carCondition!=''">
+                and t3.car_condition = #{carCondition}
+            </if>
+        </where>
+        order by t1.work_time desc
+        <if test="start!=-5">
+            limit #{start},5
+        </if>
+    </select>
+    <update id="modifyBusiness">
+        update business
+        <set>
+            <if test="mile!=null">
+                mile=#{mile},
+            </if>
+            <if test="energyCost!=null">
+                energy_cost=#{energyCost},
+            </if>
+            <if test="addressId!=null">
+                address_id=#{addressId},
+            </if>
+            <if test="otherAddress!=null and otherAddress!=''">
+                other_address=#{otherAddress},
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+    <resultMap id="business_result" type="com.sharedcar.pojo.Business">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="workTime" column="work_time"/>
+        <result property="carImg" column="car_img"/>
+        <result property="mile" column="mile"/>
+        <result property="energyCost" column="energy_cost"/>
+        <result property="otherAddress" column="other_address"/>
+        <result property="response" column="response"/>
+
+        <association property="user" column="user_id" javaType="com.sharedcar.pojo.User">
+            <id property="id" column="user_id"/>
+            <result property="name" column="uname"/>
+        </association>
+        <association property="car" column="car_id" javaType="com.sharedcar.pojo.Car">
+            <id property="id" column="car_id"/>
+            <result property="carNumber" column="cnumber"/>
+            <result property="carCondition" column="ccondition"/>
+            <result property="remainEnergy" column="renergy"/>
+        </association>
+        <association property="address" column="address_id" javaType="com.sharedcar.pojo.Address">
+            <id property="id" column="address_id"/>
+            <result property="addressName" column="aname"/>
+        </association>
+    </resultMap>
+</mapper>

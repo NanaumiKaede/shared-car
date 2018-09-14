@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--扫描指定包下的类,实例化组件-->
+    <context:component-scan base-package="com.*.dao,com.*.service"/>
+    <!--自动将注解扫描成
+    <bean id="xxxService" class="com.*.service.XxxService"/>
+    <bean id="xxxService" class="com.*.dao.XxxMapper"/>
+    -->
+    <!--开启注解@Service@Repository-->
+    <context:annotation-config/>
+    <!--读取类路径下的jdbc.properties文件-->
+    <util:properties id="properties" location="classpath:jdbc.properties"/>
+    <!--配置c3p0连接池-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="#{properties.driver}"/>
+        <property name="jdbcUrl" value="#{properties.url}"/>
+        <property name="user" value="#{properties.username}"/>
+        <property name="password" value="#{properties.password}"/>
+
+        <!--连接池中保留的最小连接数-->
+        <property name="minPoolSize" value="10"/>
+        <!--连接池中保留的最大连接数,默认15个-->
+        <property name="maxPoolSize" value="20"/>
+        <!--连接池中一开始就得到整个数量的连接数-->
+        <property name="initialPoolSize" value="10"/>
+        <!--连接池中的连接耗尽的时候c3p0一次同时生产几个连接-->
+        <property name="acquireIncrement" value="2"/>
+        <!--最大空闲时间120秒,超出时间没有使用的连接关闭-->
+        <property name="maxIdleTime" value="120"/>
+        <!-- 每次连接最大可执行的sql语句数量 -->
+        <property name="maxStatements" value="100"/>
+    </bean>
+    <!--会话工厂-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.*.pojo"/>
+        <property name="configuration">
+            <bean class="org.apache.ibatis.session.Configuration">
+                <property name="mapUnderscoreToCamelCase" value="true"/>
+                <property name="logImpl" value="org.apache.ibatis.logging.log4j2.Log4j2Impl"/>
+            </bean>
+        </property>
+
+        <!--如果没有映射器只有xml则加下面这句-->
+        <!--<property name="mapperLocations" value="classpath:com/*/mapper/*.xml"/>-->
+    </bean>
+    <!--映射器接口的扫描器 - 自动扫描指定包下的所有映射器接口,并实例化-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.*.dao"/>
+    </bean>
+    <bean id="commonsMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+    <import resource="classpath:applicationContext-tx.xml"/>
+</beans>

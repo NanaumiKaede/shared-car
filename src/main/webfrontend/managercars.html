@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>租车系统后台</title>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <style type="text/css">
+        #left-nav {
+            width: 10%;
+            height: 650px;
+        }
+
+        #headLogo {
+            width: 100%;
+            height: 56px;
+        }
+
+        #headLogo img {
+            height: 56px;
+            width: 100%;
+        }
+
+        .mynav li {
+            padding-bottom: 70px;
+        }
+
+        .mynav li a {
+            display: block;
+            color: white;
+        }
+
+        .right-content {
+            width: 100%;
+            height: 650px;
+            background-color: gainsboro;
+        }
+
+        .manager {
+            float: left;
+            margin: 10px;
+            width: 88%;
+            display: none;
+        }
+
+        td img {
+            width: 20px;
+        }
+
+        #operating {
+            width: 100px;
+            height: 100px;
+            font-size: 16px;
+        }
+
+        #operating a {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .rentcarform {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+<div id="main">
+    <div id="left-nav" class="bg-dark float-left">
+        <div id="headLogo"><img src="img/汽车logo.png" onclick="window.location.href='index.html'"></div>
+        <nav class="navbar">
+            <ul class="nav nav-pills flex-column nav-justified mynav">
+                <li class="nav-item">
+                    <a href="managercondition.html" id="condition" class="nav-link">实时状态</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" id="cars" class="nav-link active">汽车管理</a>
+                </li>
+                <li class=" nav-item ">
+                    <a href="managerusers.html" id="users" class="nav-link">用户管理</a>
+                </li>
+                <li class="nav-item">
+                    <a href="managerbusiness.html" id="works" class="nav-link">业务统计</a>
+                </li>
+                <li class=" nav-item ">
+                    <a href="manageraddress.html" id="addresses" class="nav-link">停车管理</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="right-content" id="content">
+        <div class="card manager" id="carslist">
+            <div class="card-header bg-info text-white">
+                所有汽车一览
+            </div>
+            <div class="card-body">
+                总数:&nbsp;&nbsp;&nbsp;&nbsp;<span id="totalCars"></span>辆<br>
+                查找汽车:车牌:<input type="text" id="carNumber" name="carNumber" class="form-control col-1 rentcarform">
+                剩余能源: <input type="number" id="beginRE" name="beginRE" class="form-control col-1 rentcarform">~
+                <input type="number" id="endRE" name="endRE" class="form-control col-1 rentcarform">
+                停车位置:<select id="addressId" name="addressId" class="form-control col-2 rentcarform"></select>
+                汽车状态:<select id="carCondition" name="carCondition" class="form-control col-1 rentcarform">
+                <option value=""></option>
+                <option value="正常">正常</option>
+                <option value="待充电">待充电</option>
+                <option value="待维修">待维修</option>
+            </select>
+                <button type="button" class="btn btn-primary float-right" onclick="modify()">新增</button>
+                <input type="button" id="search" value="搜索" class="btn btn-outline-primary float-right">
+                <div>
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>车牌</th>
+                            <th>类型</th>
+                            <th>所在位置</th>
+                            <th>能源情况</th>
+                            <th>车辆状况</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 按钮：用于打开模态框 -->
+    <input type="hidden" id="openModal" class="btn btn-primary" data-toggle="modal" data-target="#trinfo"></button>
+    <!-- 模态框 -->
+    <div class="modal fade" id="trinfo">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">信息修改</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id">编号:</label>
+                        <input type="text" name="id" id="id" class="form-control" readonly="readonly"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="car_number">车牌:</label>
+                        <input type="text" name="car_number" id="car_number" class="form-control" readonly="readonly"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">类型:</label>
+                        <select name="type" id="type" class="form-control">
+                            <option value="电能驱动">电能驱动</option>
+                            <option value="燃油驱动">燃油驱动</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="address_id">所在位置:</label>
+                        <select name="address_id" id="address_id" class="form-control">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="remain_energy">能源情况(%):</label>
+                        <input type="number" name="remain_energy" id="remain_energy" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="car_condition">车辆状况:</label>
+                        <select name="car_condition" id="car_condition" class="form-control">
+                            <option value="可租赁">可租赁</option>
+                            <option value="正在使用">正在使用</option>
+                            <option value="待充电">待充电</option>
+                            <option value="待维修">待维修</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <span id="error_message" style="color: red;"></span>
+                    <button type="button" class="btn btn-primary" id="save">保存</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(window).on('load', () => {
+        $('#carslist').fadeIn(500);
+        $.ajax({
+            type: 'get',
+            url: 'http://127.0.0.1:8086/sharedcar/simple/address',
+            dataType: 'json',
+            success: (result) => {
+                $('#addressId').empty();
+                let text = `<option></option>`;
+                $(result).each((i, address) => {
+                    text += `<option value="${address.id}">${address.addressName}</option>`;
+                })
+                $('#addressId').append(text);
+                $('#address_id').append(text);
+            }
+        })
+        getContent();
+    })
+    $('#search').click(function (e) {
+        getContent()
+    })
+    $('tbody').on('click', 'tr', function (e) {
+        $('#operating').remove();
+        let xx = e.originalEvent.x || e.originalEvent.layerX || 0;
+        let yy = e.originalEvent.y || e.originalEvent.layerY || 0;
+        yy += $(window).scrollTop();
+        let text = `<div id="operating" class="list-group" style="position:absolute;top:${yy}px;left:${xx}px;">
+				<a href="javascript:void(0)" class="list-group-item list-group-item-action btn btn-primary" onclick="modify('${this.id}')">修改</a>
+				<a href="javascript:void(0)" class="list-group-item list-group-item-action btn btn-danger" onclick="remove('${this.id}')">删除</a>
+				<a href="javascript:void(0)" class="list-group-item list-group-item-action btn btn-dark" onclick="$('#operating').remove()">关闭</a>
+				</div>`;
+        $('body').append(text);
+    })
+    $('#save').click(function (e) {
+        let id = $('#id').val();
+        let carNumber = $('#car_number').val();
+        let type = $('#type').val();
+        let addressId = $('#address_id').val();
+        let remainEnergy = $('#remain_energy').val();
+        let carCondition = $('#car_condition').val();
+        if (id != '') {
+            let data = {
+                id: id,
+                carNumber: carNumber,
+                type: type,
+                addressId: addressId,
+                remainEnergy: remainEnergy,
+                carCondition: carCondition
+            }
+            $.ajax({
+                type: 'put',
+                url: 'http://127.0.0.1:8086/sharedcar/simple/car',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: (result) => {
+                    if (result.code == 200) {
+                        window.location.href = 'managercars.html';
+                    } else {
+                        $('#error_message').append("车辆信息非法,请检查!")
+                    }
+                }
+            })
+        } else {
+            let data = {carNumber: carNumber, type: type, addressId: addressId}
+            $.ajax({
+                type: 'post',
+                url: 'http://127.0.0.1:8086/sharedcar/simple/car',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: (result) => {
+                    if (result.code == 200) {
+                        window.location.href = 'managercars.html';
+                    } else {
+                        $('#error_message').append("车辆信息非法,请检查!")
+                    }
+                }
+            })
+        }
+    })
+
+    function modify(obj) {
+        $('#operating').remove();
+        if (obj == undefined) {
+            $('#car_number').removeAttr("readonly");
+            $('#remain_energy').attr("readonly", "readonly");
+            $('#car_condition').attr("disabled", "disabled")
+            $('.modal-title').text("信息新增")
+        } else {
+            $('#car_number').attr("readonly", "readonly");
+            $('#remain_energy').removeAttr("readonly");
+            $('#car_condition').removeAttr("disabled");
+            $('.modal-title').text("信息修改")
+        }
+        let tds = $('#' + obj).children();
+        $('#id').val($(tds[0]).text());
+        $('#car_number').val($(tds[1]).text());
+        $('#type').children().each((i, o) => {
+            if ($(o).text() == $(tds[2]).text()) {
+                $(o).attr('selected', 'selected');
+            }
+        })
+        $('#address_id').children().each((i, o) => {
+            if ($(o).text() == $(tds[3]).text()) {
+                $(o).attr('selected', 'selected');
+            }
+        })
+        let remain = $('#' + obj + ' .progress-bar').text();
+        $('#remain_energy').val(remain.substring(0, remain.indexOf("%")));
+        $('#car_condition').children().each((i, o) => {
+            if ($(o).text() == $(tds[5]).text()) {
+                $(o).attr('selected', 'selected');
+            }
+        })
+        $('#openModal').click();
+    }
+
+    function remove(obj) {
+        let id = obj.substring(obj.indexOf("tr") + 2);
+        if (window.confirm("确认删除?")) {
+            $('#operating').remove();
+            $.ajax({
+                type: 'delete',
+                url: 'http://127.0.0.1:8086/sharedcar/simple/car/' + id,
+                dataType: 'json',
+                success: (result) => {
+                    if (result.code == 200) {
+                        $('#' + obj).remove();
+                    } else {
+                        window.alert("删除失败!")
+                    }
+                }
+            })
+        }
+    }
+
+    function getContent() {
+        let carNumber = $('#carNumber').val();
+        let beginRE = $('#beginRE').val();
+        let endRE = $('#endRE').val();
+        let addressId = $('#addressId').val();
+        let carCondition = $('#carCondition').val();
+        let data = {
+            carNumber: carNumber,
+            beginRE: beginRE,
+            endRE: endRE,
+            addressId: addressId,
+            carCondition: carCondition
+        }
+        $.ajax({
+            type: 'get',
+            url: 'http://127.0.0.1:8086/sharedcar/simple/car',
+            data: data,
+            dataType: 'json',
+            success: (result) => {
+                $('tbody').empty();
+                $(result).each((i, car) => {
+                    $('#totalCars').empty();
+                    $('#totalCars').append(i + 1);
+                    let text = `<tr id="cartr${car.id}">
+                            <td>${car.id}</td>
+                            <td>${car.carNumber}</td>
+                            <td>${car.type}</td>
+                            <td>${$('#addressId option[value=' + car.addressId + ']').text()}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" style="width:${car.remainEnergy}%">${car.remainEnergy}%</div>
+                                </div>
+                            </td>
+                            <td><img src="`
+                    if (car.carCondition == "可租赁") {
+                        text += `img/汽车2绿.png`
+                    }
+                    if (car.carCondition == "待充电") {
+                        text += `img/汽车2黄.png`
+                    }
+                    if (car.carCondition == "待维修") {
+                        text += `img/汽车2红.png`
+                    }
+                    text += `"/>${car.carCondition}</td>
+                        </tr>`
+                    $('tbody').append(text);
+                })
+            }
+        })
+
+    }
+</script>
+
+</html>

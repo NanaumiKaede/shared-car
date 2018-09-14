@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>注册</title>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+    <style type="text/css">
+        body {
+            background-color: gainsboro;
+        }
+
+        #head {
+            width: 100%;
+            height: 56px;
+        }
+
+        #headLogo {
+            width: 120px;
+            height: 56px;
+        }
+
+        #headLogo img {
+            height: 56px;
+            width: 100%;
+        }
+
+        #loginBox {
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        #loginBox a {
+            color: rgba(255, 255, 255, .5);
+            padding-right: .5rem;
+        }
+
+        #loginBox a:hover {
+            color: rgba(255, 255, 255, .75);
+            text-decoration: none;
+        }
+
+        #content {
+            width: 100%;
+            height: 500px;
+            background: url(img/轮播4.jpg);
+            background-size: 100% 500px;
+        }
+
+        #loginForm {
+            width: 50%;
+            height: 400px;
+            margin: 0px auto;
+            padding-top: 30px;
+            display: none;
+        }
+
+        .rentcarform {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <header class="bg-dark" id="head">
+        <div id="headLogo" class="float-left"><img src="img/汽车logo.png" onclick="window.location.href='index.html'">
+        </div>
+        <nav class="navbar navbar-expand-sm navbar-dark float-left">
+            <ul class="navbar-nav" style="padding-left: 100px;">
+                <li class="nav-item">
+                    <a href="rent_car.html" class="nav-link">我要租车</a>
+                </li>
+                <li class="nav-item">
+                    <a href="return_car.html" class="nav-link">我要还车</a>
+                </li>
+                <li class="nav-item">
+                    <a href="" class="nav-link">业务介绍</a>
+                </li>
+            </ul>
+        </nav>
+        <div id="loginBox" class="float-right">
+            <a href="login.html">登录</a>
+            <a href="register.html">注册</a>
+        </div>
+    </header>
+    <div id="content">
+        <div id="loginForm">
+            <div class="card">
+                <div class="card-header">注册</div>
+                <div class="card-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="username">用户名:</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名">
+                        </div>
+                        <div class="form-group">
+                            <label for="password1">密码:</label>
+                            <input type="password" class="form-control" id="password1" name="password1"
+                                   placeholder="请输入密码">
+                        </div>
+                        <div class="form-group">
+                            <label for="password2">重复密码:</label>
+                            <input type="password" class="form-control" id="password2" name="password2"
+                                   placeholder="请确认密码">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="registerUp">注册</button>
+                        <span id="error_message" style="color: red;"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(window).on('load', () => {
+        $('#loginForm').fadeIn(1000);
+    })
+    $('#registerUp').click(function () {
+        $('#error_message').empty();
+        let username = $('#username').val();
+        let password1 = $('#password1').val();
+        let password2 = $('#password2').val();
+        if (password1 != password2) {
+            $('#error_message').append("两次输入的密码不一样!")
+        } else {
+            $.ajax({
+                type: 'post',
+                url: 'http://127.0.0.1:8086/sharedcar/simple/user',
+                data: {username: username, password: password2, action: 'register'},
+                dataType: 'json',
+                success: (result) => {
+                    if (result.code == 500) {
+                        $('#error_message').text("注册失败,用户已存在!")
+                    } else {
+                        register(username);
+                    }
+                }
+            })
+        }
+    })
+
+    function registerAgain(username) {
+        let idCard = $('#id_card').val();
+        let driverId = $('#driver_id').val();
+        let phone = $('#phone').val();
+        let name = $('#name').val();
+        let age = $('#age').val();
+        let sex = $('input[name="sex"]:checked').val();
+        //console.log(idCard, driverId, phone, name, age, sex);
+        let data = {
+            username: username,
+            idCard: idCard,
+            driverId: driverId,
+            phone: phone,
+            name: name,
+            age: age,
+            sex: sex
+        }
+        $.ajax({
+            type: 'put',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            url: 'http://127.0.0.1:8086/sharedcar/simple/user',
+            dataType: 'json',
+            success: (result) => {
+                if (result.code == 200) {
+                    $('#card-body').empty();
+                    $('#card-body').append("<div>注册成功</div>");
+                    window.location.href = "login.html";
+                } else {
+                    $('#error_message').append("用户信息非法,请检查!")
+                }
+            }
+        })
+    }
+
+    function register(username) {
+        $('#loginForm').hide();
+        let text = `<div class="card-header">用户信息填写(证件信息一旦验证用户无法自由修改!)</div>
+						<div class="card-body">
+							<form>
+								<div class="form-group">
+									<label for="id_card">身份证号码:</label>
+									<input type="text" class="form-control" id="id_card" name="id_card">
+								</div>
+								<div class="form-group">
+									<label for="driver_id">驾驶证档案编号:</label>
+									<input type="text" class="form-control col-4 rentcarform" id="driver_id" name="driver_id">
+									<label for="phone">电话:</label>
+									<input type="text" class="form-control col-4 rentcarform" id="phone" name="phone">
+								</div>
+								<div class="form-group">
+									<label for="name">姓名:</label>
+									<input type="text" class="form-control col-3 rentcarform" id="name" name="name">
+									<label for="age">年龄:</label>
+									<input type="number" class="form-control col-3 rentcarform" id="age" name="age">&nbsp;&nbsp;&nbsp;&nbsp;
+									<div class="radio rentcarform">
+										<label>性别:</label>
+										<label><input type="radio" id="sexm" name="sex" value="男" />男</label>
+										<label><input type="radio" id="sexf" name="sex" value="女" />女</label>
+									</div>
+								</div>
+								<button type="button" class="btn btn-primary" id="registerUpUp" onclick="registerAgain('${username}')">注册</button>
+								<span id="error_message" style="color: red;"></span>
+							</form>
+						</div>`
+        $('.card').empty();
+        $('.card').append(text);
+        $('#loginForm').fadeIn(1000);
+    }
+
+</script>
+
+</html>

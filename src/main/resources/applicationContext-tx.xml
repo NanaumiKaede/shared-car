@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx/spring-tx.xsd 
+       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--配置事务注解-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--默认事务的transaction-manager为transactionManager,如果不自定义可以不写-->
+    <!--<tx:annotation-driven/>-->
+    <!--事务通知-->
+    <tx:advice id="txAdvice"><!--默认transaction-manager为transactionManager-->
+        <!--传播的规则-->
+        <tx:attributes>
+            <tx:method name="add*" rollback-for="Exception"/><!--默认propagetion为Required 默认isolation为Default-->
+            <tx:method name="modify*" rollback-for="Exception"/>
+            <tx:method name="remove*" rollback-for="Exception"/>
+            <tx:method name="*" propagation="NOT_SUPPORTED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--AOP 配置事务管理-->
+    <aop:config>
+        <aop:pointcut id="methods" expression="execution(* com.*.service.*.*(..))"/>
+        <!--把通知和切入点连接起来形成切面-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="methods"/>
+    </aop:config>
+</beans>

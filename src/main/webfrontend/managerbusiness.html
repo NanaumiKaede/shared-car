@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>租车系统后台</title>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <style type="text/css">
+        #left-nav {
+            width: 10%;
+            height: 650px;
+        }
+
+        #headLogo {
+            width: 100%;
+            height: 56px;
+        }
+
+        #headLogo img {
+            height: 56px;
+            width: 100%;
+        }
+
+        .mynav li {
+            padding-bottom: 70px;
+        }
+
+        .mynav li a {
+            display: block;
+            color: white;
+        }
+
+        .right-content {
+            width: 100%;
+            height: 650px;
+            background-color: gainsboro;
+        }
+
+        .manager {
+            float: left;
+            margin: 10px;
+            width: 88%;
+            display: none;
+        }
+
+        td img {
+            width: 20px;
+        }
+
+        #operating a {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .rentcarform {
+            display: inline;
+        }
+
+        .modal-body img {
+            width: 750px;
+        }
+
+        #numberList li {
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+<div id="main">
+    <div id="left-nav" class="bg-dark float-left">
+        <div id="headLogo"><img src="img/汽车logo.png" onclick="window.location.href='index.html'"></div>
+        <nav class="navbar">
+            <ul class="nav nav-pills flex-column nav-justified mynav">
+                <li class="nav-item">
+                    <a href="managercondition.html" id="condition" class="nav-link">实时状态</a>
+                </li>
+                <li class="nav-item">
+                    <a href="managercars.html" id="cars" class="nav-link">汽车管理</a>
+                </li>
+                <li class="nav-item">
+                    <a href="managerusers.html" id="users" class="nav-link">用户管理</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" id="works" class="nav-link active">业务统计</a>
+                </li>
+                <li class="nav-item">
+                    <a href="manageraddress.html" id="addresses" class="nav-link">停车管理</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="right-content" id="content">
+        <div class="card manager" id="worklist">
+            <div class="card-header bg-info text-white">
+                业务一览
+            </div>
+            <div class="card-body">
+                总数:&nbsp;&nbsp;&nbsp;&nbsp;<span id="totalBusinesses"></span>条<br>
+                搜索业务:&nbsp;&nbsp;&nbsp;&nbsp;
+                编号:<input type="number" id="id" name="id" class="form-control col-1 rentcarform">
+                类型:<select id="type" name="type" class="form-control col-1 rentcarform">
+                <option></option>
+                <option value="租赁">租赁</option>
+                <option value="归还">归还</option>
+                <option value="充电">充电</option>
+                <option value="维修">维修</option>
+            </select>
+                用户姓名:<input type="text" id="name" name="name" class="form-control col-1 rentcarform">
+                车牌号:<input type="text" id="carNumber" name="carNumber" class="form-control col-1 rentcarform">
+                业务日期:<input type="date" id="beginTime" name="beginTime" class="form-control col-2 rentcarform">~
+                <input type="date" id="endTime" name="endTime" class="form-control col-2 rentcarform">
+                <button type="button" class="btn btn-outline-primary" id="search">搜索</button>
+                <div id="carsTable">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>类型</th>
+                            <th>用户</th>
+                            <th>车辆车牌</th>
+                            <th>时间</th>
+                            <th>审核图片</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <ul class="pagination rentcarform float-left">
+                        <li class="page-item" id="prev"><a class="page-link" href="#">上一页</a></li>
+                    </ul>
+                    <ul class="pagination rentcarform float-left" id="numberList">
+                        <li class="page-item number active"><a class="page-link" href="#">1</a></li>
+                    </ul>
+                    <ul class="pagination rentcarform float-left">
+                        <li class="page-item" id="next"><a class="page-link" href="#">下一页</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 按钮：用于打开模态框 -->
+    <input type="hidden" id="openModal" class="btn btn-primary" data-toggle="modal" data-target="#trinfo"></button>
+    <!-- 模态框 -->
+    <div class="modal fade" id="trinfo">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">用户上传图片</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <img src="" alt="用户未上传图片!"/>
+                    <img src="img/轮播2.jpg"/>
+                    <img src="img/轮播4.jpg"/>
+                    <img src=""/>
+                    <img src=""/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="brokenReporte">故障报告</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(window).on('load', () => {
+        $('#worklist').fadeIn(500);
+        $.ajax({
+            type: 'get',
+            url: 'http://127.0.0.1:8086/sharedcar/simple/business',
+            dataType: 'json',
+            success: (result) => {
+                $('#totalBusinesses').text(result)
+                let totalpage = Math.ceil(result / 5);
+                for (let i = 2; i <= totalpage; i++) {
+                    let text = `<li class="page-item number"><a class="page-link" href="#">${i}</a></li>`
+                    $('#numberList').append(text);
+                }
+            }
+        })
+        getContent();
+    })
+    $('#search').click(function () {
+        getContent();
+    })
+    $('.pagination').on('click', '.number', function (e) {
+        $('.number').attr('class', 'page-item number');
+        $(this).attr('class', 'page-item number active');
+        getContent();
+    })
+    $('#next').click(function (e) {
+        $('.pagination .active').next("li").click();
+    })
+
+    $('#prev').click(function (e) {
+        $('.pagination .active').prev("li").click();
+    })
+
+    function getContent() {
+        let id = $('#id').val();
+        let name = $('#name').val();
+        let carNumber = $('#carNumber').val();
+        let type = $('#type').val();
+        let beginTime = $('#beginTime').val();
+        let endTime = $('#endTime').val();
+        let pageNo = $('.pagination .active').children("a").get(0).innerText;
+        $.ajax({
+            type: 'get',
+            url: 'http://127.0.0.1:8086/sharedcar/complex/business',
+            data: {
+                id: id,
+                name: name,
+                carNumber: carNumber,
+                type: type,
+                beginTime: beginTime,
+                endTime: endTime,
+                pageNo: pageNo
+            },
+            dataType: 'json',
+            success: (result) => {
+                $('tbody').empty();
+                $(result).each((i, business) => {
+                    let text = `<tr id="bustr${business.id}">
+                        <td>${business.id}</td>
+                        <td>${business.type}</td>
+                        <td>${business.user.name}</td>
+                        <td>${business.car.carNumber}</td>
+                        <td>${business.workTime}</td>
+                        <td>
+                            <button id="bus_img${business.id}" class="btn btn-outline-warning" onclick="$('#openModal').click()">审核图片</button>
+                        </td>
+                    </tr>`
+                    $('tbody').append(text);
+                })
+            }
+        })
+    }
+</script>
+
+</html>
